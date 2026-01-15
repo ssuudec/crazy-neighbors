@@ -2,44 +2,45 @@ using UnityEngine;
 
 public class Bullet_sc : MonoBehaviour
 {
-    public float damage = 20f;
-    private float dogumZamani;
-
-    [HideInInspector]
-    public Character_sc owner;
-
-    void Start()
-    {
-        dogumZamani = Time.time;
-        Destroy(gameObject, 8f);
-    }
+    public Character_sc owner; 
+    private bool hasHit = false; 
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        if (Time.time - dogumZamani < 0.05f) return;
+        if (hasHit) return;
 
-        Character_sc target = collision.collider.GetComponent<Character_sc>();
-        if (target != null)
+        // Eski güvenli komut
+        GameManager_sc gameManager = FindFirstObjectByType<GameManager_sc>();
+        Character_sc hitCharacter = collision.gameObject.GetComponent<Character_sc>();
+        
+        if (hitCharacter != null)
         {
-            // kendi kendine çarpmaz
-            if (owner != null && target == owner) return;
+            if (hitCharacter == owner) return; 
 
-            target.TakeDamage(damage);
-            Destroy(gameObject);
-            return;
+            hasHit = true;
+            hitCharacter.TakeDamage(10); 
+            
+            if (gameManager != null && owner != null && owner.name == gameManager.enemyCharacter.name)
+            {
+                gameManager.RegisterEnemyHit(10); 
+            }
+        }
+        else 
+        {
+            hasHit = true; 
         }
 
-        // wall veya grounda çarpınca yok etmek için 
-        if (collision.collider.CompareTag("Wall") || collision.collider.CompareTag("Ground"))
-        {
-            Destroy(gameObject);
-        }
+        if (gameManager != null) gameManager.EndTurn();
+        Destroy(gameObject);
     }
-
-    void Update()
+    
+    void OnBecameInvisible() 
     {
-        if (transform.position.y < -6f || transform.position.x < -15f || transform.position.x > 15f)
+        if (!hasHit)
         {
+            hasHit = true;
+            GameManager_sc gameManager = FindFirstObjectByType<GameManager_sc>();
+            if (gameManager != null) gameManager.EndTurn();
             Destroy(gameObject);
         }
     }

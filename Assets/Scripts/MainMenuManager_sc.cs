@@ -1,9 +1,12 @@
 using UnityEngine;
-using UnityEngine. SceneManagement;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI; 
 
 public class MainMenuManager_sc : MonoBehaviour
 {
     public static MainMenuManager_sc Instance;
+
+    public static bool usePreTrainedAI = false;
 
     [Header("Ses Kaynakları")]
     public AudioSource musicSource;
@@ -13,24 +16,23 @@ public class MainMenuManager_sc : MonoBehaviour
     public AudioClip buttonClickSound;
     public AudioClip enemyHurtSound;
 
-    // sahneler arası kalıcı ses değerleri
+    
+    [Header("Yapay Zeka")]
+    public Toggle aiToggle;
+
     public static float musicVolume = 1f;
     public static float sfxVolume = 1f;
 
     void Awake()
-{
-    // başka bir instance varsa ve bu farklı bir sahneden geldiyse
-    if (Instance != null && Instance != this)
     {
-        // sahneyi değil de sadece bu yeni objeyi yok etmek için 
-        Destroy(gameObject);
-        return;
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
-
-    // bu objeyi instance yapıp ve sahneler arası korumak için 
-    Instance = this;
-    DontDestroyOnLoad(gameObject);
-}
 
     void Start()
     {
@@ -38,7 +40,20 @@ public class MainMenuManager_sc : MonoBehaviour
             musicSource.volume = musicVolume;
 
         if (sfxSource != null)
-            sfxSource. volume = sfxVolume;
+            sfxSource.volume = sfxVolume;
+
+       
+        if (aiToggle != null)
+        {
+            usePreTrainedAI = aiToggle.isOn;
+            aiToggle.onValueChanged.AddListener(ToggleAI);
+        }
+    }
+
+    public void ToggleAI(bool isOn)
+    {
+        usePreTrainedAI = isOn;
+        Debug.Log("Yapay Zeka Yükleme Modu: " + (isOn ? "AÇIK" : "KAPALI"));
     }
 
     public void StartGame()
@@ -58,7 +73,7 @@ public class MainMenuManager_sc : MonoBehaviour
     {
         sfxVolume = volume;
         if (sfxSource != null)
-            sfxSource. volume = volume;
+            sfxSource.volume = volume;
     }
 
     public void PlayButtonClick()

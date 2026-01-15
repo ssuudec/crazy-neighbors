@@ -7,6 +7,8 @@ TagManager:
   - Wall
   - Ground
   - Enemy
+  - Bullet
+  - Shield
   layers:
   - Default
   - TransparentFX
@@ -14,8 +16,8 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
+  - Player
+  - Enemy
   - 
   - 
   - 
